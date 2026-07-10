@@ -1,0 +1,358 @@
+/* 全局重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Microsoft YaHei", sans-serif;
+}
+
+/* 页面基础样式 - 核心修复：禁用全局滚动，避免下拉 */
+html, body {
+    height: 100%;
+    overflow: hidden; /* 彻底禁止页面滚动 */
+}
+body {
+    background: linear-gradient(135deg, #9198e5, #e66465);
+    min-height: 100vh;
+    /* 移除原有padding，避免居中偏移 */
+    position: relative;
+    overflow-x: hidden;
+    /* 配合居中：flex布局 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 漂浮装饰动画 */
+.music-note {
+    position: absolute;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 24px;
+    animation: float 8s infinite ease-in-out;
+    z-index: 0;
+}
+.music-note:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
+.music-note:nth-child(2) { top: 20%; right: 10%; animation-delay: 1s; }
+.music-note:nth-child(3) { top: 70%; left: 15%; animation-delay: 2s; }
+.music-note:nth-child(4) { top: 40%; right: 20%; animation-delay: 3s; }
+.music-note:nth-child(5) { top: 80%; right: 5%; animation-delay: 4s; }
+
+@keyframes float {
+    0% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(180deg); }
+    100% { transform: translateY(0) rotate(360deg); }
+}
+
+@keyframes roll {
+    0% { transform: translateX(0) rotate(0deg); }
+    100% { transform: translateX(150vw) rotate(360deg); }
+}
+
+/* 主容器 - 居中+内部滚动（兼容长内容） */
+.container {
+    max-width: 800px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 1;
+    min-height: 600px;
+    width: 90%;
+    margin: 20px 0;
+    /* 新增：容器内允许滚动（适配长题目/小屏幕） */
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-right: 10px; /* 避免滚动条遮挡内容 */
+}
+
+/* 开始界面样式 */
+.start-screen {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+    min-height: 500px;
+    align-items: center;
+    justify-content: center;
+}
+.start-screen.active {
+    display: flex;
+}
+.test-content {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+.test-content.active {
+    display: block;
+    opacity: 1;
+}
+
+.start-bg {
+    background: linear-gradient(135deg, rgba(102, 51, 153, 0.1), rgba(0, 168, 204, 0.1));
+    padding: 50px 30px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+.start-title {
+    font-size: 32px;
+    color: #663399;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+.start-subtitle {
+    font-size: 18px;
+    color: #888;
+    margin-bottom: 25px;
+}
+.start-desc {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.8;
+    margin-bottom: 40px;
+}
+.start-btn {
+    padding: 15px 40px;
+    font-size: 18px;
+    background: linear-gradient(90deg, #663399, #00a8cc);
+    border: none;
+    border-radius: 50px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.start-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(102, 51, 153, 0.3);
+}
+
+/* 标题区域 */
+.title-section {
+    text-align: center;
+    margin-bottom: 30px;
+}
+.main-title {
+    color: #663399;
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+.subtitle {
+    color: #888;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+/* 角色图标 */
+.character-icons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+.char-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+.char-icon:hover {
+    transform: scale(1.1);
+}
+.miku { background: #39C5BB; }
+.rin { background: #FFA500; }
+.len { background: #FFE211; }
+.luka { background: #FFC0CB; }
+.kaito { background: #0000FF; }
+.meiko { background: #D80000; }
+
+/* 题目容器（适配动态生成） */
+.question-container-wrapper {
+    margin-bottom: 30px;
+}
+.question-container {
+    display: none;
+}
+.question-container.active {
+    display: block;
+}
+.question-title {
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+/* 选项列表 */
+.option-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+.option {
+    padding: 15px;
+    border-radius: 10px;
+    background: #f5f5f5;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+.option:hover {
+    background: #eee;
+}
+.option.selected {
+    border-color: #663399;
+    background: rgba(102, 51, 153, 0.1);
+    font-weight: bold;
+}
+
+/* 按钮容器 */
+.btn-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+.btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 30px;
+    background: #663399;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+.btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+.btn:hover:not(:disabled) {
+    background: #8a4fbf;
+}
+
+/* 结果区域 */
+.result-container {
+    display: none;
+    text-align: center;
+    padding: 30px 0;
+}
+.result-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+}
+.result-title {
+    color: #663399;
+    font-size: 26px;
+    margin-bottom: 15px;
+}
+.result-desc {
+    color: #555;
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    padding: 0 20px;
+}
+.result-tip {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+
+/* 歌姬名字漂浮/掉落动画容器 - 修复溢出+滚动 */
+.voice-char-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none; /* 不影响页面交互 */
+  z-index: -1; /* 置于背景层 */
+  overflow: hidden; /* 隐藏容器内溢出元素 */
+}
+
+/* 歌姬名字元素通用样式 - 修复滚动+性能优化 */
+.voice-char {
+  position: absolute;
+  top:-50px; /* 初始在视口外 */
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 26px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  will-change: transform; /* 动画性能优化 */
+}
+
+/* 掉落动画（默认） */
+.voice-char-fall {
+  animation-name: fall;
+}
+
+/* 漂浮动画（可切换） */
+.voice-char-float {
+  animation-name: float;
+}
+
+/* 掉落动画关键帧 - 核心修复：落点在视口内，避免下拉 */
+@keyframes fall {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
+    /* 修复calc语法+落点在视口内（100vh - 50px） */
+    transform: translateY(calc(100vh - 50px)) translateX(15px) rotate(8deg);
+  }
+  100% {
+    /* 最终位置仍在视口内，仅透明消失 */
+    transform: translateY(calc(100vh - 50px)) translateX(20px) rotate(10deg);
+    opacity: 0;
+  }
+}
+
+/* 漂浮动画关键帧 */
+@keyframes float {
+  0% {
+    transform: translateY(50vh) translateX(0) rotate(0deg);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(30vh) translateX(30px) rotate(5deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(50vh) translateX(-30px) rotate(-5deg);
+    opacity: 0.6;
+  }
+}
+
+/* 不同歌姬名字的颜色区分 */
+.char-miku { color: #39C5BB; } /* 初音未来-蓝绿色 */
+.char-rin { color: #FFA500; }  /* 镜音铃-橙黄色 */
+.char-len { color: #FFE211; }  /* 镜音连-天蓝色 */
+.char-luka { color: #FFC0CB; } /* 巡音流歌-粉色 */
+.char-kaito { color: #0000FF; }/* KAITO-宝蓝色 */
+.char-meiko { color: #D80000; }/* MEIKO-红色 */
